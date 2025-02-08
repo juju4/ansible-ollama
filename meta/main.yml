@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: ollama
+  author: juju4
+  description: Ansible role to setup Ollama.
+  license: BSD
+  min_ansible_version: '2.10'
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - jammy
+        - focal
+        - bionic
+  galaxy_tags:
+    - web
+    - ai
+    - api
+dependencies: []

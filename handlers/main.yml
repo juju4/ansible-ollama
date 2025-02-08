@@ -1,0 +1,14 @@
+---
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  when:
+    - not is_container|bool
+
+- name: Restart ollama
+  ansible.builtin.service:
+    name: ollama
+    state: restarted
+  when:
+    - not is_container|bool

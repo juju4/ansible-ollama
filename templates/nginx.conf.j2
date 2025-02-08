@@ -1,0 +1,96 @@
+{{ ansible_managed | comment }}
+
+# /etc/nginx/site-enabled/ollama
+# https://github.com/ollama/ollama/blob/main/docs/faq.md#how-can-i-use-ollama-with-a-proxy-server
+# https://github.com/ollama/ollama/issues/1053#issuecomment-2253445923
+# https://github.com/kesor/ollama-proxy/blob/main/nginx-default.conf.template
+
+upstream ollama {
+    server localhost:11434;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    include /etc/nginx/harden-nginx-https;
+{% if hardenwebserver_cert is defined and hardenwebserver_cert == 'selfsigned' %}
+    ssl_certificate {{ hardenwebserver_ssl_cert | default( ssl_dir + "/" + ansible_fqdn + ".crt") }};
+    ssl_certificate_key {{ hardenwebserver_ssl_key | default( ssl_privatedir + "/" + ansible_fqdn + ".key") }};
+{% else %}
+    ssl_certificate {{ hardenwebserver_ssl_cert | default(ssl_fullchain) }};
+    ssl_certificate_key {{ hardenwebserver_ssl_key | default(ssl_privkey) }};
+{% endif %}
+
+    server_name {{ ansible_fqdn }};
+
+    access_log /var/log/nginx/ollama.access.log;
+    error_log /var/log/nginx/ollama.error.log;
+
+    server_tokens off;
+    etag off;
+
+{% if harden_nginx_cspreport_template is defined and harden_nginx_cspreport_template %}
+    location ~ /csp/report.php {
+        allow all;
+        include snippets/fastcgi-php.conf;
+        fastcgi_param SCRIPT_FILENAME $request_filename;
+        fastcgi_pass unix:/var/run/php/php{{ harden_nginx_phpdir | regex_replace('^/etc/php/', '') }}-fpm.sock;
+    }
+
+    location ~ /csp/test-csp.html {
+        add_header Content-Security-Policy "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; report-uri /csp/report.php;";
+    }
+
+    location ~ /csp/log {
+        deny all;
+    }
+
+{% endif %}
+
+    location / {
+        # Check if the Authorization header is present and has the correct Bearer token / API Key
+        # set $token "Bearer MY_PRIVATE_API_KEY";
+        # if ($http_authorization != $token) {
+        #     return 401 "Unauthorized";
+        # }
+
+        # Handle preflight OPTIONS requests
+        if ($request_method = OPTIONS ) {
+            # Add CORS headers for preflight request
+            add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type' always;
+            add_header 'Access-Control-Max-Age' 1728000;
+            return 204;
+        }
+
+        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+        add_header 'Access-Control-Allow_Credentials' 'true' always;
+        add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type' always;
+
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        #add_header X-Frame-Options DENY;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
+        # CSP?
+        add_header Content-Security-Policy "{{ hardenwebserver_header_csp }}";
+        #add_header Referrer-Policy strict-origin-when-cross-origin;
+        add_header Referrer-Policy origin;
+
+        proxy_pass http://ollama;  # Forward request to the actual web service
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_request_buffering off;
+
+        proxy_hide_header Access-Control-Allow-Origin;
+        proxy_hide_header Access-Control-Allow-Methods;
+        proxy_hide_header Access-Control-Allow-Headers;
+        proxy_hide_header Access-Control-Expose-Headers;
+    }
+}

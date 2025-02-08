@@ -1,0 +1,104 @@
+{{ ansible_managed | comment }}
+
+# https://github.com/ollama/ollama/blob/main/docs/linux.md
+[Unit]
+Description=Ollama Service
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/ollama serve
+User={{ ollama_user }}
+Group={{ ollama_user }}
+Restart=always
+RestartSec=3
+Environment="PATH=$PATH"
+{% if ollama_amdgpu_enable | bool %}
+# https://github.com/ollama/ollama/blob/main/docs/gpu.md#overrides
+Environment="HSA_OVERRIDE_GFX_VERSION=11.0.2"
+{% endif %}
+{% if proxy_url is defined and proxy_url | length > 0 %}
+Environment="HTTPS_PROXY={{ proxy_url }}"
+{% endif %}
+EnvironmentFile=/etc/default/ollama
+
+# Hardening
+# Exposure score 2.0
+# Warning! Test to your context
+NoNewPrivileges=yes
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=true
+ProtectProc=noaccess
+PrivateDevices=yes
+UMask=077
+# ReadWritePaths=/var/log /run/systemd/journal/syslog /run/systemd/journal/dev-log /run/systemd/journal/syslog /run/systemd/notify /run/systemd/userdb/io.systemd.DynamicUser
+# ReadOnlyPaths=/proc/kmsg
+InaccessiblePaths=/proc
+ProtectKernelTunables=true
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectControlGroups=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+MemoryDenyWriteExecute=yes
+
+# PrivateNetwork=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictAddressFamilies=~AF_NETLINK AF_PACKET
+
+IPAccounting=yes
+{% if proxy_url is defined and proxy_url | length > 0 %}
+# upstream communication can be limited to proxy to pull models
+# and internal
+IPAddressAllow=localhost link-local multicast 10.0.0.0/8 192.168.0.0/16
+{% else %}
+# IPAddressAllow=localhost link-local multicast 10.0.0.0/8 192.168.0.0/16
+{% endif %}
+# IPAddressDeny=
+
+CapabilityBoundingSet=~CAP_AUDIT_CONTROL CAP_AUDIT_READ CAP_DAC_READ_SEARCH
+CapabilityBoundingSet=~CAP_BLOCK_SUSPEND
+CapabilityBoundingSet=~CAP_DAC_* CAP_FOWNER CAP_IPC_OWNER
+CapabilityBoundingSet=~CAP_FSETID CAP_SETFCAP
+CapabilityBoundingSet=~CAP_IPC_LOCK
+CapabilityBoundingSet=~CAP_KILL
+CapabilityBoundingSet=~CAP_LEASE
+CapabilityBoundingSet=~CAP_LINUX_IMMUTABLE
+CapabilityBoundingSet=~CAP_NET_ADMIN
+CapabilityBoundingSet=~CAP_NET_BROADCAST
+CapabilityBoundingSet=~CAP_NET_RAW
+CapabilityBoundingSet=~CAP_SETUID CAP_SETGID CAP_SETPCAP
+CapabilityBoundingSet=~CAP_SETPCAP
+CapabilityBoundingSet=~CAP_SYS_RAWIO
+CapabilityBoundingSet=~CAP_SYS_PTRACE
+CapabilityBoundingSet=~CAP_SYS_NICE CAP_SYS_RESOURCE
+CapabilityBoundingSet=~CAP_SYS_BOOT
+CapabilityBoundingSet=~CAP_SYS_CHROOT
+CapabilityBoundingSet=~CAP_SYS_PACCT
+CapabilityBoundingSet=~CAP_SYS_TTY_CONFIG
+CapabilityBoundingSet=~CAP_SYS_ADMIN
+
+{% if not (ansible_virtualization_type is defined and
+          ansible_virtualization_type == "docker"
+        )
+%}
+SystemCallFilter=@system-service
+SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @privileged @raw-io @reboot @resources @swap
+SystemCallArchitectures=native
+# When system call is disallowed, return error code instead of killing process
+SystemCallErrorNumber=EPERM
+{% endif %}
+
+{% if ollama_cgroups_restriction_enable is defined and ollama_cgroups_restriction_enable | bool %}
+CPUWeight={{ ollama_cgroups_cpushares | default('80') }}
+CPUQuota={{ ollama_cgroups_cpuquota | default('80%') }}
+MemoryMax={{ ollama_cgroups_memorylimit | default('16G') }}
+IOWeight={{ ollama_cgroups_cpushares | default('80') }}
+{% endif %}
+
+[Install]
+WantedBy=default.target

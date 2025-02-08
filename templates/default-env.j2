@@ -1,0 +1,10 @@
+{{ ansible_managed | comment }}
+
+# Ollama env settings
+# Note: export is required for shell usage, but not for systemd EnvironmentFile
+# https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
+# https://github.com/ollama/ollama/issues/2941
+
+{% for kv in ollama_env_config %}
+{{ kv }}
+{% endfor %}

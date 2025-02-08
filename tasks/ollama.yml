@@ -1,0 +1,59 @@
+---
+
+- name: Ensure ollama user exists
+  ansible.builtin.user:
+    name: "{{ ollama_user }}"
+    home: "{{ ollama_home }}"
+    system: yes
+    groups: ['render', 'video']
+    append: yes
+
+- name: Download ollama AI - Be patient (~1.6GB)...
+  ansible.builtin.get_url:
+    url: "{{ ollama_url }}"
+    dest: "{{ install_archives }}/ollama.tgz"
+    mode: '0644'
+    checksum: "{{ ollama_hash }}"
+  become: yes
+  become_user: "{{ ollama_user }}"
+
+- name: Setup ollama AI
+  ansible.builtin.unarchive:
+    src: "{{ install_archives }}/ollama.tgz"
+    dest: /usr/local
+    mode: '0755'
+    owner: "{{ ollama_user }}"
+    remote_src: true
+    creates: /usr/local/bin/ollama
+
+- name: Configure openwebui /etc/default
+  ansible.builtin.template:
+    src: "{{ ollama_env_variables_template }}"
+    dest: "/etc/default/ollama"
+    mode: '0640'
+    owner: root
+    group: "{{ ollama_user }}"
+  notify:
+    - Restart ollama
+
+- name: Ensure systemd unit files are configured
+  ansible.builtin.template:
+    src: "ollama.service.j2"
+    dest: "/etc/systemd/system/ollama.service"
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart ollama
+
+- name: Ensure services are enabled and started
+  ansible.builtin.service:
+    name: ollama
+    state: started
+    enabled: yes
+
+- name: Download models - Be patient...
+  ansible.builtin.command:  # noqa no-changed-when
+    cmd: "ollama pull {{ item }}"
+  loop: "{{ ollama_models_downloads }}"
+  become: yes
+  become_user: "{{ ollama_user }}"

@@ -1,0 +1,26 @@
+---
+
+- name: Ensure amdgpu-install present
+  ansible.builtin.package:
+    deb: https://repo.radeon.com/amdgpu-install/6.3.1/ubuntu/jammy/amdgpu-install_6.3.60301-1_all.deb
+    state: present
+
+# ls -l /sys/class/drm/renderD*/device/driver
+- name: AMDgpu rocm - Be patient, 194 packages, 2.9GB
+  ansible.builtin.command:
+    cmd: amdgpu-install --usecase=rocm --no-dkms -y
+  register: amdgpu_cmd
+  changed_when:
+    - "'0 upgraded, 0 newly installed, 0 to remove' not in amdgpu_cmd.stdout"
+
+- name: Get lspci
+  ansible.builtin.command:
+    cmd: lspci -k -d ::03xx
+  changed_when: false
+  register: lspci
+
+- name: Check if AMD device seen
+  ansible.builtin.debug:
+    msg: "WARNING! not seeing AMDGPU in lspci. Check setup/container settings."
+  when:
+    - "'Advanced Micro Devices, Inc. [AMD/ATI] Phoenix3' not in lspci.stdout"
