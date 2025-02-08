@@ -4,6 +4,7 @@ ollama_url: "https://github.com/ollama/ollama/releases/download/v0.5.7/ollama-li
 ollama_hash: "sha256:8d4e054bc512d53115074c19de5a7915df78180f89c014abbae4497e4a813a3c"
 ollama_user: _ollama
 ollama_home: /var/_ollama
+ollama_user_groups: ['render', 'video']
 
 ollama_models_downloads:
   - tinyllama  # 700MB

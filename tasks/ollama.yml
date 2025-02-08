@@ -5,7 +5,7 @@
     name: "{{ ollama_user }}"
     home: "{{ ollama_home }}"
     system: yes
-    groups: ['render', 'video']
+    groups: "{{ ollama_user_groups }}"
     append: yes
 
 - name: Download ollama AI - Be patient (~1.6GB)...
