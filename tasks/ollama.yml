@@ -35,25 +35,3 @@
     group: "{{ ollama_user }}"
   notify:
     - Restart ollama
-
-- name: Ensure systemd unit files are configured
-  ansible.builtin.template:
-    src: "ollama.service.j2"
-    dest: "/etc/systemd/system/ollama.service"
-    mode: '0644'
-  notify:
-    - Reload systemd
-    - Restart ollama
-
-- name: Ensure services are enabled and started
-  ansible.builtin.service:
-    name: ollama
-    state: started
-    enabled: yes
-
-- name: Download models - Be patient...
-  ansible.builtin.command:  # noqa no-changed-when
-    cmd: "ollama pull {{ item }}"
-  loop: "{{ ollama_models_downloads }}"
-  become: yes
-  become_user: "{{ ollama_user }}"
