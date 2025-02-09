@@ -23,5 +23,5 @@ ollama_env_config: []
 
 ollama_cgroups_restriction_enable: true
 
-install_archives: "{{ ollama_home }}"
+install_archives: "/var/_install"
 is_container: false

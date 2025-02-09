@@ -14,8 +14,6 @@
     dest: "{{ install_archives }}/ollama.tgz"
     mode: '0644'
     checksum: "{{ ollama_hash }}"
-  become: yes
-  become_user: "{{ ollama_user }}"
 
 - name: Setup ollama AI
   ansible.builtin.unarchive:
