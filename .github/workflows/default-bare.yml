@@ -114,6 +114,13 @@ jobs:
           sudo cat /etc/default/ollama
         if: ${{ always() }}
         continue-on-error: true
+      - name: After script - memory
+        run: |
+          set -x
+          free -m
+          cat /proc/meminfo
+        if: ${{ always() }}
+        continue-on-error: true
       - name: After script - ollama
         run: |
           set -x
