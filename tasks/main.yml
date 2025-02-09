@@ -23,6 +23,13 @@
       )
     )
 
+- name: Ensure install archives directory exists
+  ansible.builtin.file:
+    name: "{{ install_archives }}"
+    mode: '0755'
+    owner: root
+    state: directory
+
 - name: Import amdgpu
   ansible.builtin.import_tasks: amdgpu.yml
   when: ollama_amdgpu_enable | bool
