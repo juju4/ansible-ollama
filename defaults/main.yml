@@ -18,8 +18,13 @@ ollama_amdgpu_enable: false
 ollama_env_variables_template: "default-env.j2"
 ollama_env_config: []
 # OLLAMA_HOST=
+# OLLAMA_DEBUG=1
 # HTTPS_PROXY=
 # HSA_OVERRIDE_GFX_VERSION=
+
+# if using GPU, need those settings
+# ollama_systemd_rwpaths: /dev/kfd /dev/dri
+# ollama_systemd_privatedevices: no
 
 ollama_cgroups_restriction_enable: true
 

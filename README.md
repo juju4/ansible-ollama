@@ -47,7 +47,7 @@ $ MOLECULE_DISTRO=ubuntu:24.04 molecule test --destroy=never
 
 ## Troubleshooting & Known issues
 
-TBD
+* If using GPU and systemd hardening, you will require custom options for access (see defaults/main.yml for amdgpu example).
 
 ## License
 

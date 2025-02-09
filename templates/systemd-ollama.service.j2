@@ -29,9 +29,13 @@ PrivateTmp=true
 ProtectHome=true
 ProtectSystem=true
 ProtectProc=noaccess
-PrivateDevices=yes
+PrivateDevices={{ ollama_systemd_privatedevices | default('yes') }}
 UMask=077
+{% if ollama_systemd_rwpaths is defined %}
+ReadWritePaths={{ ollama_systemd_rwpaths }}
+{% else %}
 # ReadWritePaths=
+{% endif %}
 ReadOnlyPaths=/proc/meminfo
 # InaccessiblePaths=/proc
 ProtectKernelTunables=true
