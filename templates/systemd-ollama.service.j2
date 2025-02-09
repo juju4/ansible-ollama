@@ -16,7 +16,7 @@ Environment="PATH=$PATH"
 # https://github.com/ollama/ollama/blob/main/docs/gpu.md#overrides
 Environment="HSA_OVERRIDE_GFX_VERSION=11.0.2"
 {% endif %}
-{% if proxy_url is defined and proxy_url | length > 0 %}
+{% if proxy_url is defined and proxy_url != None and proxy_url | length > 0 %}
 Environment="HTTPS_PROXY={{ proxy_url }}"
 {% endif %}
 EnvironmentFile=/etc/default/ollama
