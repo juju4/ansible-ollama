@@ -71,7 +71,7 @@ jobs:
           cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-lint
         if: ${{ always() }}
       - name: TruffleHog OSS check
-        uses: trufflesecurity/trufflehog@f19d6e5d2bef8a8ceca2b7d77ec447fc304f8078
+        uses: trufflesecurity/trufflehog@793c09da0f612a946a511869d1013f2db37824de
         with:
           path: ${{ env.ANSIBLE_ROLE }}
           extra_args: --debug --only-verified
