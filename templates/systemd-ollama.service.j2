@@ -12,13 +12,6 @@ Group={{ ollama_user }}
 Restart=always
 RestartSec=3
 Environment="PATH=$PATH"
-{% if ollama_amdgpu_enable | bool %}
-# https://github.com/ollama/ollama/blob/main/docs/gpu.md#overrides
-Environment="HSA_OVERRIDE_GFX_VERSION=11.0.2"
-{% endif %}
-{% if proxy_url is defined and proxy_url != None and proxy_url | length > 0 %}
-Environment="HTTPS_PROXY={{ proxy_url }}"
-{% endif %}
 EnvironmentFile=/etc/default/ollama
 
 # Hardening
@@ -91,7 +84,10 @@ CapabilityBoundingSet=~CAP_SYS_ADMIN
         )
 %}
 SystemCallFilter=@system-service
-SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @privileged @raw-io @reboot @resources @swap
+SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @privileged @raw-io @reboot @swap
+# OllamaException - {"error":"llama runner process has terminated: error:out of memory"}
+# ollama[296]: pthread_create failed 1 (Operation not permitted)
+# SystemCallFilter=~@resources
 SystemCallArchitectures=native
 # When system call is disallowed, return error code instead of killing process
 SystemCallErrorNumber=EPERM
