@@ -49,6 +49,27 @@ $ MOLECULE_DISTRO=ubuntu:24.04 molecule test --destroy=never
 
 * If using GPU and systemd hardening, you will require custom options for access (see defaults/main.yml for amdgpu example).
 
+* When using reverse-proxy with https and custom CA, you need to bundle common CA certificates and custom one if need to use with specific libraries. For example, crewai use httpx which will require environment variable SSL_CERT_FILE=/path/to/ca-bundle-custom.pem. If you use only your custom CA, other tools will stop to work (search...).
+  * On RedHat/Fedora, `cat /etc/pki/tls/certs/ca-bundle.crt ca-custom.crt > ca-bundle-custom.pem`
+  * On Debian/Ubuntu, `cat /usr/share/ca-certificates/mozilla/*.crt ca-custom.crt > ca-bundle-custom.pem`
+
+* `litellm.APIConnectionError: OllamaException - {"error":"POST predict: Post \"http://127.0.0.1:33887/completion\": EOF"}`
+  * https://github.com/ollama/ollama/issues/7640
+  * Check ollama logs to find underlying issue
+  * happened with or without systemd hardening
+  * possibly just not enough memory or "GPU hang"
+
+* Typical issues in logs
+```
+journalctl -u ollama -g "level=ERROR" --since today -l --no-pager
+journalctl -u ollama -g "out of memory" --since today -l --no-pager
+journalctl -u ollama -g "GPU Hang" --since today -l --no-pager
+journalctl -u ollama -g "level=WARN" --since today -l --no-pager
+journalctl -u ollama -g "Server listening on " --since today -l --no-pager
+journalctl -u ollama -g "invalid option provided" --since today -l --no-pager
+journalctl -u ollama -g "model requires more system memory" --since today -l --no-pager
+```
+
 ## License
 
 BSD 2-clause
