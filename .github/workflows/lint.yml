@@ -19,7 +19,7 @@ jobs:
       ANSIBLE_CALLBACKS_ENABLED: profile_tasks
       ANSIBLE_EXTRA_VARS: ""
       ANSIBLE_ROLE: juju4.ollama
-      SUITE: default
+      SUITE: default-nginx
 
     steps:
       - uses: actions/checkout@v4
