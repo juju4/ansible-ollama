@@ -31,5 +31,9 @@ ollama_env_config: []
 
 ollama_cgroups_restriction_enable: true
 
+ollama_reporting_template: ollama_report.sh
+ollama_reporting_dest: /var/tmp
+ollama_logrotate_days: 10
+
 install_archives: "/var/_install"
 is_container: false

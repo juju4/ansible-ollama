@@ -1,0 +1,50 @@
+#!/bin/sh
+
+export export PATH=/usr/bin:/bin
+umask 077
+
+# inline stdout redirection for sh
+# https://stackoverflow.com/questions/3173131/redirect-copy-of-stdout-to-log-file-from-within-bash-script-itself
+check_tee_output()
+{
+    # copy (append) stdout and stderr to log file if TEE is unset or true
+    if [ -z "${TEE}" ] || [ "${TEE}" = true ]; then
+        TEE=false $0 2>&1 | tee {{ ollama_reporting_dest }}/ollama-report-"$(date +%Y%m%d)" >/dev/null
+        exit $?
+    fi
+}
+
+check_tee_output
+
+date=$(date +%Y%m%d)
+journalctl_args="-l --no-pager --since today"
+
+echo
+echo
+echo "      OLLAMA DAILY REPORT ${date}"
+echo
+echo
+
+echo "** sample"
+# timestamp, http status, response time, real src IP, method, path
+journalctl -eu ollama -g '\[GIN\]' ${journalctl_args} | sed 's@.*\[GIN\] @@' | head -3
+echo "** http status code"
+journalctl -eu ollama -g '\[GIN\]' ${journalctl_args} | awk -F'[|]' '{ sub(/.*\[GIN\] /,"",$0); print $2; }' | sort | uniq -c | sort -nr
+echo "** src IP"
+journalctl -eu ollama -g '\[GIN\]' ${journalctl_args} | awk -F'[|]' '{ sub(/.*\[GIN\] /,"",$0); print $4; }' | sort | uniq -c | sort -nr
+echo "** method path"
+journalctl -eu ollama -g '\[GIN\]' ${journalctl_args} | awk -F'[|]' '{ sub(/.*\[GIN\] /,"",$0); print $5; }' | sort | uniq -c | sort -nr
+echo "** models"
+# only model hash (mostly debug level, a bit info level)
+# name with `grep -ril HASH /var/_ollama/.ollama/models/manifests/`
+journalctl -eu ollama -g "model=/var/_ollama/.ollama/models/" ${journalctl_args} | sed 's@.*.ollama/models/blobs/@@;s@ error=.*$@@' | sort | uniq -c | sort -nr
+echo
+echo
+
+echo "** prompt"
+# only timestamp and prompt, no user/IP (if debug level enabled)
+journalctl -eu ollama -g 'msg="generate request"' ${journalctl_args} | sed "s/.*prompt=//" | head -3
+echo
+echo
+
+find {{ ollama_reporting_dest }} -name 'ollama-report-*' -mtime +{{ ollama_logrotate_days | int }} -exec rm {} \; 2>/dev/null

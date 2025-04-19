@@ -40,6 +40,9 @@
 - name: Import systemd
   ansible.builtin.import_tasks: systemd.yml
 
+- name: Import reporting
+  ansible.builtin.import_tasks: reporting.yml
+
 - name: Download models - Be patient...
   ansible.builtin.command:  # noqa no-changed-when
     cmd: "ollama pull {{ item }}"
