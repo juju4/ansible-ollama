@@ -139,8 +139,8 @@ jobs:
       - name: After script - curl
         run: |
           curl -vL http://localhost:11434 || true
-          curl -v http://localhost:11434/api/chat -d '{ "model": "tinyllama", "keep_alive": "0", "options": {"num_thread": 16},  "messages": [{"role": "user", "content": "Why is the sky blue?"}]}' || true
-          curl -v https://localhost/api/chat -d '{ "model": "tinyllama", "keep_alive": "0", "options": {"num_thread": 16},  "messages": [{"role": "user", "content": "Why is the sky blue?"}]}' || true
+          curl -v --connect-timeout 5 --max-time 180 http://localhost:11434/api/chat -d '{ "model": "tinyllama", "keep_alive": "0", "options": {"num_thread": 16},  "messages": [{"role": "user", "content": "Why is the sky blue?"}]}' || true
+          curl -v --connect-timeout 5 --max-time 180 https://localhost/api/chat -d '{ "model": "tinyllama", "keep_alive": "0", "options": {"num_thread": 16},  "messages": [{"role": "user", "content": "Why is the sky blue?"}]}' || true
         if: ${{ always() }}
         continue-on-error: true
       - name: After script - journalctl
