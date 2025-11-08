@@ -13,7 +13,7 @@
     url: "{{ ollama_url }}"
     dest: "{{ install_archives }}/ollama.tgz"
     mode: '0644'
-    checksum: "{{ ollama_hash }}"
+    checksum: "{{ ollama_hash | default(omit) }}"
 
 - name: Setup ollama AI
   ansible.builtin.unarchive:
