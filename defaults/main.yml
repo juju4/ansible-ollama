@@ -1,7 +1,7 @@
 ---
 
 # renovate: datasource=github-releases depName=ollama/ollama
-ollama_github_version: 'v0.12.11'
+ollama_github_version: 'v0.13.0'
 ollama_url: "https://github.com/ollama/ollama/releases/download/{{ ollama_github_version }}/ollama-linux-amd64.tgz"
 # ollama_hash: "sha256:1d1aea4dcae1d6b736141c2998416a742b89d7fda9321d60db7ea286db77268d"
 ollama_user: _ollama
