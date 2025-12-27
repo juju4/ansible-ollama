@@ -79,8 +79,8 @@ CapabilityBoundingSet=~CAP_SYS_PACCT
 CapabilityBoundingSet=~CAP_SYS_TTY_CONFIG
 CapabilityBoundingSet=~CAP_SYS_ADMIN
 
-{% if not (ansible_virtualization_type is defined and
-          ansible_virtualization_type == "docker"
+{% if not (ansible_facts['virtualization_type'] is defined and
+          ansible_facts['virtualization_type'] == "docker"
         )
 %}
 SystemCallFilter=@system-service
