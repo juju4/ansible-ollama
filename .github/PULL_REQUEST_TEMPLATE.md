@@ -48,6 +48,14 @@
   - [ ] AIL4 AI Created, Human Basic Idea
   - [ ] AIL5 AI Created, Little Human Involvement
 
+## AI Influence Disclosure
+<!--- Per maintainer request, disclose if AI was used in any capacity. See: https://danielmiessler.com/blog/ai-influence-level-ail -->
+- [ ] No AI was used in the creation of this PR.
+- [ ] AI was used in the creation of this PR (disclose AIL level below):
+
+**AI Influence Level (AIL):** <!-- e.g., Level 1 - AI suggested code with review -->
+<!--- See https://danielmiessler.com/blog/ai-influence-level-ail for definitions -->
+
 <!--
 https://www.talater.com/open-source-templates/#/page/1
 -->
