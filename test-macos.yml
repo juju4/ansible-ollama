@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  become: false
+  roles:
+    - role: .
+      vars:
+        ollama_models_downloads:
+          - tinyllama

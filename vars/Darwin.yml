@@ -1,0 +1,5 @@
+---
+# macOS-specific variables
+# Homebrew manages the ollama user and paths
+
+ollama_pkg: []
