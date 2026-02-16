@@ -1,0 +1,17 @@
+---
+name: ansible-ollama
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - ansible
+  - ansible-lint
+  - yamllint
+  - molecule
+  - docker-py
+  - flake8
+  - testinfra
+  - pip
+  - pip:
+      - molecule-plugins[docker]
