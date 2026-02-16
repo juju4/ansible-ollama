@@ -234,3 +234,6 @@ secring.*
 ## S/MIME message
 *.smime
 .ansible
+
+## Test files
+test-macos.yml 
