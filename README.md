@@ -18,6 +18,17 @@ It was tested on the following versions:
 
 Tested on Ubuntu 24.04, 22.04, 20.04, Centos/Rockylinux 9.
 
+macOS (Darwin) is experimentally supported via Homebrew. No CI coverage; manually tested.
+
+## macOS Notes
+
+macOS support requires:
+- Homebrew installed (automatically detected at `/opt/homebrew` or `/usr/local`)
+- Uses `brew services` for process management (no launchd plist customization)
+- Same `ollama_models_downloads` variable for model pre-pulling
+
+This path is intended for local development/workstation use.
+
 ## Example Playbook
 
 Just include this role in your list.

@@ -1,0 +1,48 @@
+---
+
+- name: Verify
+  hosts: "{{ playbook_hosts | default('all') }}"
+  vars:
+    exec_file: "{{ '/opt/homebrew/bin/ollama' if ansible_facts['machine'] == 'arm64' else '/usr/local/bin/ollama' }}"
+    processes:
+      - { p: ollama }
+    ports:
+      - { h: 127.0.0.1, p: 11434 }
+  tasks:
+    - name: Check executable
+      ansible.builtin.stat:
+        path: "{{ exec_file }}"
+      register: bin1
+    - name: Validate executable is present
+      ansible.builtin.assert:
+        that:
+          - bin1.stat.exists and bin1.stat.size != 0
+
+    - name: Ensure ollama process is running
+      ansible.builtin.command:
+        cmd: "pgrep -x {{ item.p }}"
+      register: ps
+      changed_when: false
+      failed_when: false
+      loop: "{{ processes }}"
+    - name: Validate ps output
+      ansible.builtin.assert:
+        that:
+          - item.stdout | length > 0
+      loop: "{{ ps.results }}"
+
+    - name: Check all processes
+      ansible.builtin.command: ps aux
+      changed_when: false
+      register: psa
+    - name: Debug | ps aux output
+      ansible.builtin.debug:
+        var: psa
+        verbosity: 1
+
+    - name: Ensure port is listening
+      ansible.builtin.wait_for:
+        host: "{{ item.h }}"
+        port: "{{ item.p }}"
+        timeout: 10
+      with_items: "{{ ports }}"

@@ -1,0 +1,72 @@
+---
+# macOS Ollama installation via Homebrew
+
+- name: Detect Homebrew path
+  ansible.builtin.set_fact:
+    homebrew_path: "{{ '/opt/homebrew/bin/brew' if ansible_facts['machine'] == 'arm64' else '/usr/local/bin/brew' }}"
+
+- name: Verify Homebrew is installed
+  ansible.builtin.stat:
+    path: "{{ homebrew_path }}"
+  register: homebrew_check
+
+- name: Fail if Homebrew not found
+  ansible.builtin.fail:
+    msg: "Homebrew not found at {{ homebrew_path }}. Install from https://brew.sh"
+  when: not homebrew_check.stat.exists
+
+# --- Install/Present ---
+- name: Install ollama via Homebrew
+  community.general.homebrew:
+    name: ollama
+    state: present
+  become: false
+  when: ollama_state == 'present'
+
+- name: Start ollama service via Homebrew
+  ansible.builtin.command:
+    cmd: "{{ homebrew_path }} services start ollama"
+  become: false
+  register: brew_service_result
+  changed_when: "'Successfully started' in brew_service_result.stdout"
+  failed_when: false
+  when: ollama_state == 'present'
+
+- name: Wait for ollama service to be ready
+  ansible.builtin.command:
+    cmd: ollama list
+  register: ollama_ready
+  until: ollama_ready.rc == 0
+  retries: 12
+  delay: 5
+  changed_when: false
+  when: ollama_state == 'present'
+
+- name: Import models
+  ansible.builtin.import_tasks: models.yml
+  when:
+    - ollama_state == 'present'
+    - ollama_models_downloads | length > 0
+
+# --- Uninstall/Absent ---
+- name: Stop ollama service via Homebrew
+  ansible.builtin.command:
+    cmd: "{{ homebrew_path }} services stop ollama"
+  become: false
+  register: brew_service_stop
+  changed_when: "'Successfully stopped' in brew_service_stop.stdout"
+  failed_when: false
+  when: ollama_state == 'absent'
+
+- name: Uninstall ollama via Homebrew
+  community.general.homebrew:
+    name: ollama
+    state: absent
+  become: false
+  when: ollama_state == 'absent'
+
+# --- Summary ---
+- name: MacOS installation summary
+  ansible.builtin.debug:
+    msg: "Ollama {{ ollama_state }}: {{ ollama_models_downloads | length }} models configured"
+  when: ollama_state == 'present'

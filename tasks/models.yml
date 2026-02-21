@@ -1,0 +1,7 @@
+---
+- name: Download models - Be patient...
+  ansible.builtin.command:  # noqa no-changed-when
+    cmd: "ollama pull {{ item }}"
+  loop: "{{ ollama_models_downloads }}"
+  register: model_pull
+  changed_when: "'pulling' in model_pull.stdout"
