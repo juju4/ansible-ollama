@@ -7,6 +7,8 @@ ollama_url: "https://github.com/ollama/ollama/releases/download/{{ ollama_github
 ollama_user: _ollama
 ollama_home: /var/_ollama
 ollama_user_groups: ['render', 'video']
+# To force update, set as empty value
+ollama_creates: /usr/local/bin/ollama
 
 ollama_models_downloads:
   - tinyllama  # 700MB

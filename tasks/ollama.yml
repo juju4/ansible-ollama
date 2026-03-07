@@ -27,7 +27,9 @@
     mode: '0755'
     owner: "{{ ollama_user }}"
     remote_src: true
-    creates: /usr/local/bin/ollama
+    creates: "{{ ollama_creates | default(omit) }}"
+  notify:
+    - Restart ollama
 
 - name: Configure openwebui /etc/default
   ansible.builtin.template:
