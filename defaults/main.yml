@@ -23,11 +23,13 @@ ollama_env_variables_template: "default-env.j2"
 ollama_env_config: []
 # OLLAMA_HOST=
 # OLLAMA_DEBUG=1
+# OLLAMA_DEBUG=2  # for prompt logging
+# OLLAMA_LOG_FORMAT=json
 # https://github.com/ollama/ollama/blob/main/docs/gpu.md#overrides
 # HSA_OVERRIDE_GFX_VERSION=
 
 # This will set ollama HTTPS_PROXY
-# proxy_url: http://proxy:3128
+# ollama_proxy_url: http://proxy:3128
 
 # if using GPU, need those settings
 # ollama_systemd_rwpaths: /dev/kfd /dev/dri

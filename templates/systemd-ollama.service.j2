@@ -48,7 +48,7 @@ RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 RestrictAddressFamilies=~AF_NETLINK AF_PACKET
 
 IPAccounting=yes
-{% if proxy_url is defined and proxy_url | length > 0 %}
+{% if ollama_proxy_url is defined and ollama_proxy_url | length > 0 %}
 # upstream communication can be limited to proxy to pull models
 # and internal
 IPAddressAllow=localhost link-local multicast 10.0.0.0/8 192.168.0.0/16
