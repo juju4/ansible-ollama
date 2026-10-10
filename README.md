@@ -1,7 +1,7 @@
-[![Actions Status - Master](https://github.com/juju4/ansible-ollama/workflows/AnsibleCI/badge.svg)](https://github.com/juju4/ansible-ollama/actions?query=branch%3Amain)
-[![Actions Status - Devel](https://github.com/juju4/ansible-ollama/workflows/AnsibleCI/badge.svg?branch=devel)](https://github.com/juju4/ansible-ollama/actions?query=branch%3Adevel)
-
 # Ollama ansible role
+
+[![Actions Status - Main](https://github.com/juju4/ansible-ollama/workflows/AnsibleCI/badge.svg)](https://github.com/juju4/ansible-ollama/actions?query=branch%3Amain)
+[![Actions Status - Devel](https://github.com/juju4/ansible-ollama/workflows/AnsibleCI/badge.svg?branch=devel)](https://github.com/juju4/ansible-ollama/actions?query=branch%3Adevel)
 
 Ansible role to setup [Ollama](https://github.com/ollama/ollama/).
 
